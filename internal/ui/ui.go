@@ -141,13 +141,13 @@ func (m Model) View() string {
 		[]string{
 			m.summary.View(),
 			m.viewport.View(),
-			footer(m.viewport.Width, m.lastUpdateTime),
+			m.footer(m.viewport.Width, m.lastUpdateTime),
 		},
 		"\n",
 	)
 }
 
-func footer(width int, time string) string {
+func (m Model) footer(width int, time string) string {
 
 	if width < 80 {
 		return styleLogo(" ticker ")
@@ -164,6 +164,11 @@ func footer(width int, time string) string {
 			Text:  styleHelp("q: exit ↑: scroll up ↓: scroll down"),
 		},
 		Cell{
+			Text:  styleHelp("Totals: " + ValueText(m.summary.Summary.Value)),
+			Align: RightAlign,
+		},
+		Cell{
+			Width: 25,
 			Text:  styleHelp("↻  " + time),
 			Align: RightAlign,
 		},

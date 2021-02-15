@@ -20,7 +20,7 @@ var (
 	options    cli.Options
 	err        error
 	rootCmd    = &cobra.Command{
-		Version: "v3.1.0",
+		Version: "v3.1.0-forked-0215",
 		Use:     "ticker",
 		Short:   "Terminal stock ticker and stock gain/loss tracker",
 		Args:    cli.Validate(&ctx, &options, &err),
@@ -44,7 +44,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&options.ExtraInfoExchange, "show-tags", false, "display currency, exchange name, and quote delay for each quote")
 	rootCmd.Flags().BoolVar(&options.ExtraInfoFundamentals, "show-fundamentals", false, "display open price, high, low, and volume for each quote")
 	rootCmd.Flags().BoolVar(&options.ShowSummary, "show-summary", false, "display summary of total gain and loss for positions")
-	rootCmd.Flags().BoolVar(&options.ShowHoldings, "show-holdings", false, "display average unit cost, quantity, portfolio weight")
+// 	rootCmd.Flags().BoolVar(&options.ShowHoldings, "show-holdings", false, "display average unit cost, quantity, portfolio weight")
 	rootCmd.Flags().StringVar(&options.Proxy, "proxy", "", "proxy URL for requests (default is none)")
 	rootCmd.Flags().StringVar(&options.Sort, "sort", "", "sort quotes on the UI. Set \"alpha\" to sort by ticker name. Set \"value\" to sort by position value. Keep empty to sort according to change percent")
 }

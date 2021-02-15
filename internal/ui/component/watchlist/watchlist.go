@@ -51,8 +51,8 @@ func (m Model) View() string {
 			strings.Join(
 				[]string{
 					item(quote, m.Positions[quote.Symbol], m.Width),
-					extraInfoHoldings(m.Context.Config.ShowHoldings, m.Positions[quote.Symbol], m.Width),
-					extraInfoFundamentals(m.ExtraInfoFundamentals, quote, m.Width),
+// 					extraInfoHoldings(m.Context.Config.ShowHoldings, m.Positions[quote.Symbol], m.Width),
+					extraInfoFundamentals(m.ExtraInfoFundamentals, quote, m.Positions[quote.Symbol], m.Width),
 					extraInfoExchange(m.ExtraInfoExchange, quote, m.Context.Config.Currency, m.Width),
 				},
 				"",
@@ -138,54 +138,92 @@ func extraInfoExchange(show bool, q Quote, targetCurrency string, width int) str
 	)
 }
 
-func extraInfoFundamentals(show bool, q Quote, width int) string {
+func extraInfoFundamentals(show bool, q Quote, p Position, width int) string {
 	if !show {
 		return ""
 	}
 
-	return "\n" + Line(
-		width,
-		Cell{
-			Width: 25,
-			Text:  StyleNeutralFaded("Prev Close: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketPreviousClose)),
-		},
-		Cell{
-			Width: 20,
-			Text:  StyleNeutralFaded("Open: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketOpen)),
-		},
-		Cell{
-			Text: dayRangeText(q.RegularMarketDayRange),
-		},
-	)
-}
-
-func extraInfoHoldings(show bool, p Position, width int) string {
-	if (p == Position{} || !show) {
-		return ""
+	if p.Weight == 0 {
+		return "\n" + Line(
+			width,
+			Cell{
+				Width: 25,
+				Text:  StyleNeutralFaded("Prev Close: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketPreviousClose)),
+			},
+			Cell{
+				Width: 20,
+				Text:  StyleNeutralFaded("Open: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketOpen)),
+			},
+			Cell{
+				Text: dayRangeText(q.RegularMarketDayRange),
+			},
+		)
+	} else {
+		stringWeights := ConvertFloatToString(p.Weight)
+		if len(stringWeights) == 3 {
+			stringWeights = "  " + stringWeights
+		} else if len(stringWeights) == 4 {
+			stringWeights = " " + stringWeights
+		}
+		return "\n" + Line(
+			width,
+			Cell{
+				Width: 25,
+				Text:  StyleNeutralFaded("Prev Close: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketPreviousClose)),
+			},
+			Cell{
+				Width: 20,
+				Text:  StyleNeutralFaded("Open: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketOpen)),
+			},
+			Cell{
+				Text: dayRangeText(q.RegularMarketDayRange),
+			},
+			Cell{
+				Width: 25,
+				Text:  StyleNeutralFaded("Weight: ") + StyleNeutral(stringWeights) + "%",
+				Align: RightAlign,
+			},
+			Cell{
+				Width: 25,
+				Text:  StyleNeutralFaded("Quantity: ") + StyleNeutral(ConvertFloatToString(p.Quantity)),
+				Align: RightAlign,
+			},
+			Cell{
+				Width: 25,
+				Text:  StyleNeutralFaded("Avg. Cost: ") + StyleNeutral(ConvertFloatToString(p.AverageCost)),
+				Align: RightAlign,
+			},
+		)
 	}
-
-	return "\n" + Line(
-		width,
-		Cell{
-			Text: "",
-		},
-		Cell{
-			Width: 25,
-			Text:  StyleNeutralFaded("Weight: ") + StyleNeutral(ConvertFloatToString(p.Weight)) + "%",
-			Align: RightAlign,
-		},
-		Cell{
-			Width: 25,
-			Text:  StyleNeutralFaded("Avg. Cost: ") + StyleNeutral(ConvertFloatToString(p.AverageCost)),
-			Align: RightAlign,
-		},
-		Cell{
-			Width: 25,
-			Text:  StyleNeutralFaded("Quantity: ") + StyleNeutral(ConvertFloatToString(p.Quantity)),
-			Align: RightAlign,
-		},
-	)
 }
+
+// func extraInfoHoldings(show bool, p Position, width int) string {
+// 	if (p == Position{} || !show) {
+// 		return ""
+// 	}
+// 
+// 	return "\n" + Line(
+// 		width,
+// 		Cell{
+// 			Text: "",
+// 		},
+// 		Cell{
+// 			Width: 25,
+// 			Text:  StyleNeutralFaded("Weight: ") + StyleNeutral(ConvertFloatToString(p.Weight)) + "%",
+// 			Align: RightAlign,
+// 		},
+// 		Cell{
+// 			Width: 25,
+// 			Text:  StyleNeutralFaded("Avg. Cost: ") + StyleNeutral(ConvertFloatToString(p.AverageCost)),
+// 			Align: RightAlign,
+// 		},
+// 		Cell{
+// 			Width: 25,
+// 			Text:  StyleNeutralFaded("Quantity: ") + StyleNeutral(ConvertFloatToString(p.Quantity)),
+// 			Align: RightAlign,
+// 		},
+// 	)
+// }
 
 func dayRangeText(dayRange string) string {
 	if len(dayRange) <= 0 {

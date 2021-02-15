@@ -60,7 +60,7 @@ var _ = Describe("Cli", func() {
 			ExtraInfoExchange:     false,
 			ExtraInfoFundamentals: false,
 			ShowSummary:           false,
-			ShowHoldings:          false,
+// 			ShowHoldings:          false,
 			Proxy:                 "",
 			Sort:                  "",
 		}

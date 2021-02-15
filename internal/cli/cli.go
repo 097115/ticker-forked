@@ -25,7 +25,7 @@ type Options struct {
 	ExtraInfoExchange     bool
 	ExtraInfoFundamentals bool
 	ShowSummary           bool
-	ShowHoldings          bool
+// 	ShowHoldings          bool
 	Proxy                 string
 	Sort                  string
 }
@@ -134,7 +134,7 @@ func getConfig(config Config, options Options, client resty.Client) Config {
 	config.ExtraInfoExchange = getBoolOption(options.ExtraInfoExchange, config.ExtraInfoExchange)
 	config.ExtraInfoFundamentals = getBoolOption(options.ExtraInfoFundamentals, config.ExtraInfoFundamentals)
 	config.ShowSummary = getBoolOption(options.ShowSummary, config.ShowSummary)
-	config.ShowHoldings = getBoolOption(options.ShowHoldings, config.ShowHoldings)
+// 	config.ShowHoldings = getBoolOption(options.ShowHoldings, config.ShowHoldings)
 	config.Proxy = getStringOption(options.Proxy, config.Proxy)
 	config.Sort = getStringOption(options.Sort, config.Sort)
 
