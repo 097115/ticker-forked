@@ -60,7 +60,7 @@ func (m Model) View() string {
 		)
 	}
 
-	return strings.Join(items, separator(m.Separate, m.Width))
+	return strings.Join(items, separator(m.Separate, m.Width)) + "\n"
 }
 
 func separator(isSeparated bool, width int) string {
@@ -133,7 +133,7 @@ func extraInfoExchange(show bool, q Quote, targetCurrency string, width int) str
 	return "\n" + Line(
 		width,
 		Cell{
-			Text: tagText(currencyText) + " " + tagText(exchangeDelayText(q.ExchangeDelay)) + " " + tagText(q.ExchangeName),
+			Text:  tagText(currencyText) + " " + tagText(exchangeDelayText(q.ExchangeDelay)) + " " + tagText(q.ExchangeName),
 		},
 	)
 }
@@ -155,7 +155,7 @@ func extraInfoFundamentals(show bool, q Quote, p Position, width int) string {
 				Text:  StyleNeutralFaded("Open: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketOpen)),
 			},
 			Cell{
-				Text: dayRangeText(q.RegularMarketDayRange),
+				Text:  dayRangeText(q.PriceDayLow, q.PriceDayHigh),
 			},
 		)
 	} else {
@@ -176,7 +176,7 @@ func extraInfoFundamentals(show bool, q Quote, p Position, width int) string {
 				Text:  StyleNeutralFaded("Open: ") + StyleNeutral(ConvertFloatToString(q.RegularMarketOpen)),
 			},
 			Cell{
-				Text: dayRangeText(q.RegularMarketDayRange),
+				Text:  dayRangeText(q.PriceDayLow, q.PriceDayHigh),
 			},
 			Cell{
 				Width: 25,
@@ -225,11 +225,11 @@ func extraInfoFundamentals(show bool, q Quote, p Position, width int) string {
 // 	)
 // }
 
-func dayRangeText(dayRange string) string {
-	if len(dayRange) <= 0 {
+func dayRangeText(high float64, low float64) string {
+	if high == 0.0 || low == 0.0 {
 		return ""
 	}
-	return StyleNeutralFaded("Day Range: ") + StyleNeutral(dayRange)
+	return StyleNeutralFaded("Day Range: ") + StyleNeutral(ConvertFloatToString(high)+" - "+ConvertFloatToString(low))
 }
 
 func exchangeDelayText(delay float64) string {

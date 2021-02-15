@@ -14,13 +14,14 @@ import (
 )
 
 var (
+	Version    string = "v3.1.4-forked-0215"
 	configPath string
 	dep        c.Dependencies
 	ctx        c.Context
 	options    cli.Options
 	err        error
 	rootCmd    = &cobra.Command{
-		Version: "v3.1.0-forked-0215",
+		Version: Version,
 		Use:     "ticker",
 		Short:   "Terminal stock ticker and stock gain/loss tracker",
 		Args:    cli.Validate(&ctx, &options, &err),

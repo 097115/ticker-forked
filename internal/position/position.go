@@ -11,6 +11,7 @@ import (
 type Position struct {
 	AggregatedLot
 	Value              float64
+	Cost               float64
 	DayChange          float64
 	DayChangePercent   float64
 	TotalChange        float64
@@ -99,6 +100,10 @@ func GetSymbols(symbols []string, aggregatedLots map[string]AggregatedLot) []str
 func GetPositions(ctx c.Context, aggregatedLots map[string]AggregatedLot) func([]Quote) (map[string]Position, PositionSummary) {
 	return func(quotes []Quote) (map[string]Position, PositionSummary) {
 
+		if len(aggregatedLots) <= 0 {
+			return map[string]Position{}, PositionSummary{}
+		}
+
 		positionsReduced := (gubrak.
 			From(quotes).
 			Reduce(func(acc positionAcc, quote Quote) positionAcc {
@@ -115,6 +120,7 @@ func GetPositions(ctx c.Context, aggregatedLots map[string]AggregatedLot) func([
 					position := Position{
 						AggregatedLot:      aggLot,
 						Value:              value,
+						Cost:               cost,
 						DayChange:          quote.Change * aggLot.Quantity,
 						DayChangePercent:   quote.ChangePercent,
 						TotalChange:        totalChange,
@@ -138,7 +144,7 @@ func GetPositions(ctx c.Context, aggregatedLots map[string]AggregatedLot) func([
 			Value:            positionsReduced.positionSummaryBase.value,
 			Cost:             positionsReduced.positionSummaryBase.cost,
 			Change:           positionsReduced.positionSummaryBase.value - positionsReduced.positionSummaryBase.cost,
-			DayChange:        positionsReduced.positionSummaryBase.cost,
+			DayChange:        positionsReduced.positionSummaryBase.dayChange,
 			ChangePercent:    (positionsReduced.positionSummaryBase.value / positionsReduced.positionSummaryBase.cost) * 100,
 			DayChangePercent: (positionsReduced.positionSummaryBase.dayChange / positionsReduced.positionSummaryBase.value) * 100,
 		}
