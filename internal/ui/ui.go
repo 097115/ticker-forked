@@ -42,7 +42,7 @@ type Model struct {
 
 func getTime() string {
 	t := time.Now()
-	return fmt.Sprintf("%s %02d:%02d:%02d", t.Weekday().String(), t.Hour(), t.Minute(), t.Second())
+	return fmt.Sprintf("%s %02d:%02d", t.Weekday().String(), t.Hour(), t.Minute())
 }
 
 func (m Model) updateQuotes() tea.Cmd {
