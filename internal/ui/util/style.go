@@ -18,7 +18,7 @@ var (
 	StyleLine          = NewStyle("#3a3a3a", "", false)
 	StyleTag           = NewStyle("#d0d0d0", "#3a3a3a", false)
 	StyleTagEnd        = NewStyle("#3a3a3a", "#3a3a3a", false)
-	StylePricePositive = NewStyleFromGradient("#C6FF40", "#779929")
+	StylePricePositive = NewStyleFromGradient("#779929", "#C6FF40")
 	StylePriceNegative = NewStyleFromGradient("#FF7940", "#994926")
 )
 
