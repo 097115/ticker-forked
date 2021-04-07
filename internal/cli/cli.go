@@ -8,6 +8,7 @@ import (
 	. "github.com/achannarasappa/ticker/internal/common"
 	"github.com/achannarasappa/ticker/internal/currency"
 	"github.com/achannarasappa/ticker/internal/position"
+	"github.com/achannarasappa/ticker/internal/ui/util"
 
 	"github.com/adrg/xdg"
 	"github.com/go-resty/resty/v2"
@@ -25,7 +26,7 @@ type Options struct {
 	ExtraInfoExchange     bool
 	ExtraInfoFundamentals bool
 	ShowSummary           bool
-// 	ShowHoldings          bool
+	ShowHoldings          bool
 	Proxy                 string
 	Sort                  string
 }
@@ -109,12 +110,14 @@ func readConfig(fs afero.Fs, configPathOption string) (Config, error) {
 func getReference(config Config, client resty.Client) (Reference, error) {
 
 	aggregatedLots := position.GetLots(config.Lots)
-	symbols := position.GetSymbols(config.Watchlist, aggregatedLots)
+	symbols := position.GetSymbols(config, aggregatedLots)
 
 	currencyRates, err := currency.GetCurrencyRates(client, symbols, config.Currency)
+	styles := util.GetColorScheme(config.ColorScheme)
 
 	return Reference{
 		CurrencyRates: currencyRates,
+		Styles:        styles,
 	}, err
 
 }
@@ -134,7 +137,7 @@ func getConfig(config Config, options Options, client resty.Client) Config {
 	config.ExtraInfoExchange = getBoolOption(options.ExtraInfoExchange, config.ExtraInfoExchange)
 	config.ExtraInfoFundamentals = getBoolOption(options.ExtraInfoFundamentals, config.ExtraInfoFundamentals)
 	config.ShowSummary = getBoolOption(options.ShowSummary, config.ShowSummary)
-// 	config.ShowHoldings = getBoolOption(options.ShowHoldings, config.ShowHoldings)
+	config.ShowHoldings = getBoolOption(options.ShowHoldings, config.ShowHoldings)
 	config.Proxy = getStringOption(options.Proxy, config.Proxy)
 	config.Sort = getStringOption(options.Sort, config.Sort)
 

@@ -2,8 +2,8 @@ package ui
 
 import (
 	"fmt"
-	"strings"
 	"time"
+	"strings"
 
 	c "github.com/achannarasappa/ticker/internal/common"
 	"github.com/achannarasappa/ticker/internal/position"
@@ -42,7 +42,7 @@ type Model struct {
 
 func getTime() string {
 	t := time.Now()
-	return fmt.Sprintf("%s %02d:%02d", t.Weekday().String(), t.Hour(), t.Minute())
+	return fmt.Sprintf("%s %02d:%02d:%02d", t.Weekday().String(), t.Hour(), t.Minute(), t.Second())
 }
 
 func (m Model) updateQuotes() tea.Cmd {
@@ -57,7 +57,7 @@ func (m Model) updateQuotes() tea.Cmd {
 func NewModel(dep c.Dependencies, ctx c.Context) Model {
 
 	aggregatedLots := position.GetLots(ctx.Config.Lots)
-	symbols := position.GetSymbols(ctx.Config.Watchlist, aggregatedLots)
+	symbols := position.GetSymbols(ctx.Config, aggregatedLots)
 
 	return Model{
 		ctx:             ctx,
@@ -67,7 +67,7 @@ func NewModel(dep c.Dependencies, ctx c.Context) Model {
 		getQuotes:       quote.GetQuotes(ctx, *dep.HttpClient, symbols),
 		getPositions:    position.GetPositions(ctx, aggregatedLots),
 		watchlist:       watchlist.NewModel(ctx),
-		summary:         summary.NewModel(),
+		summary:         summary.NewModel(ctx),
 	}
 }
 
@@ -118,8 +118,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		positions, positionSummary := m.getPositions(msg.quotes)
 		m.watchlist.Quotes = msg.quotes
 		m.watchlist.Positions = positions
-		m.summary.Summary = positionSummary
 		m.lastUpdateTime = msg.time
+		m.summary.Summary = positionSummary
 		if m.ready {
 			m.viewport.SetContent(m.watchlist.View())
 		}
@@ -137,6 +137,12 @@ func (m Model) View() string {
 		return "\n  Initalizing..."
 	}
 
+	viewSummary := ""
+
+	if m.ctx.Config.ShowSummary && m.ctx.Config.ShowHoldings {
+		viewSummary += m.summary.View()
+	}
+
 	return strings.Join(
 		[]string{
 			m.summary.View(),
@@ -145,6 +151,7 @@ func (m Model) View() string {
 		},
 		"\n",
 	)
+
 }
 
 func (m Model) footer(width int, time string) string {
@@ -164,7 +171,7 @@ func (m Model) footer(width int, time string) string {
 			Text:  styleHelp("q: exit ↑: scroll up ↓: scroll down"),
 		},
 		Cell{
-			Text:  styleHelp("Totals: " + ValueText(m.summary.Summary.Value)),
+			Text:  styleHelp("Totals: ") + fmt.Sprintf("%.2f", m.summary.Summary.Value),
 			Align: RightAlign,
 		},
 		Cell{
@@ -177,7 +184,7 @@ func (m Model) footer(width int, time string) string {
 }
 
 func getVerticalMargin(config c.Config) int {
-	if config.ShowSummary {
+	if config.ShowSummary && config.ShowHoldings {
 		return 2
 	}
 

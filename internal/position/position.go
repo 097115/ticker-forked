@@ -83,17 +83,28 @@ func GetLots(lots []c.Lot) map[string]AggregatedLot {
 	return (aggregatedLots).(map[string]AggregatedLot)
 }
 
-func GetSymbols(symbols []string, aggregatedLots map[string]AggregatedLot) []string {
+func GetSymbols(config c.Config, aggregatedLots map[string]AggregatedLot) []string {
 
-	symbolsFromAggregatedLots := make([]string, 0)
-	for k := range aggregatedLots {
-		symbolsFromAggregatedLots = append(symbolsFromAggregatedLots, k)
+	symbols := make(map[string]bool)
+	symbolsUnique := make([]string, 0)
+
+	for _, v := range config.Watchlist {
+		if !symbols[v] {
+			symbols[v] = true
+			symbolsUnique = append(symbolsUnique, v)
+		}
 	}
 
-	return (gubrak.From(symbolsFromAggregatedLots).
-		Concat(symbols).
-		Uniq().
-		Result()).([]string)
+	if config.ShowHoldings {
+		for k := range aggregatedLots {
+			if !symbols[k] {
+				symbols[k] = true
+				symbolsUnique = append(symbolsUnique, k)
+			}
+		}
+	}
+
+	return symbolsUnique
 
 }
 
@@ -106,12 +117,14 @@ func GetPositions(ctx c.Context, aggregatedLots map[string]AggregatedLot) func([
 
 		positionsReduced := getPositionsReduced(ctx, aggregatedLots, quotes)
 
+		change := positionsReduced.positionSummaryBase.value - positionsReduced.positionSummaryBase.cost
+
 		positionSummary := PositionSummary{
 			Value:            positionsReduced.positionSummaryBase.value,
 			Cost:             positionsReduced.positionSummaryBase.cost,
 			Change:           positionsReduced.positionSummaryBase.value - positionsReduced.positionSummaryBase.cost,
 			DayChange:        positionsReduced.positionSummaryBase.dayChange,
-			ChangePercent:    (positionsReduced.positionSummaryBase.value / positionsReduced.positionSummaryBase.cost) * 100,
+			ChangePercent:    (change / positionsReduced.positionSummaryBase.cost) * 100,
 			DayChangePercent: (positionsReduced.positionSummaryBase.dayChange / positionsReduced.positionSummaryBase.value) * 100,
 		}
 
